@@ -103,3 +103,36 @@ char *getFormaInFixa(char *Str) {
     }
     return stack[top]; // Retorna a expressão infixa
 }
+
+// Função para converter a notação pós-fixada para pré-fixada
+char *getFormaPreFixa(char *Str) {
+    char *stack[512];
+    int top = -1;
+    char *token = strtok(Str, " ");
+
+    while (token != NULL) {
+        if (sscanf(token, "%f", &((float){0})) == 1) {
+            // Se é um número, empilha
+            stack[++top] = strdup(token);
+        } else {
+            // Se é um operador, desempilha e forma a expressão
+            if (top < 1) {
+                fprintf(stderr, "Erro: Expressão inválida. Operador sem operandos.\n");
+                exit(EXIT_FAILURE);
+            }
+            char *b = stack[top--];
+            char *a = stack[top--];
+            char *expr = (char *)malloc(512);
+            snprintf(expr, 512, "(%s %s %s)", token, a, b); // Pré-fixada: (op a b)
+            stack[++top] = expr;
+            free(a);
+            free(b);
+        }
+        token = strtok(NULL, " ");
+    }
+    if (top != 0) {
+        fprintf(stderr, "Erro: Expressão inválida. Verifique a quantidade de operandos e operadores.\n");
+        exit(EXIT_FAILURE);
+    }
+    return stack[top]; // Retorna a expressão pré-fixada
+}
